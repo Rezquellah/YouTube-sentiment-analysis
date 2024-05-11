@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body data-positive="{{ positive_count }}" data-negative="{{ negative_count }}">
+
+    <div class="container">
+        <h1 class="mt-5">Analysis Results</h1>
+        <ul class="list-group mt-3">
+            {% for comment, prediction in results %}
+            <li class="list-group-item">Comment: {{ comment }} - Sentiment: {{ 'Positive' if prediction == 1 else 'Negative' }}</li>
+            {% endfor %}
+        </ul>
+        <div class="chart-container">
+            <canvas id="sentimentChart"></canvas>
+        </div>
+        <a href="/" class="btn btn-primary mt-3">Back</a>
+    </div>
+
+    <script>
+        // Access data attributes from the body tag
+        var bodyElement = document.body;
+        var positiveCount = parseInt(bodyElement.getAttribute('data-positive'), 10);
+        var negativeCount = parseInt(bodyElement.getAttribute('data-negative'), 10);
+    
+        var ctx = document.getElementById('sentimentChart').getContext('2d');
+        var sentimentChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Positive', 'Negative'],
+                datasets: [{
+                    label: 'Sentiment Analysis',
+                    data: [positiveCount, negativeCount],
+                    backgroundColor: [
+                    'rgba(75, 192, 192, 0.6)',  // Change this to green
+                    'rgba(255, 99, 132, 0.6)'   // Change this to red
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',  // Change this to green
+                    'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                var total = positiveCount + negativeCount;
+                                var percentage = (tooltipItem.raw / total * 100).toFixed(2) + '%';
+                                return tooltipItem.label + ': ' + percentage;
+                            }
+                        }
+                    }
+                },
+                circumference: 360,
+                rotation: 270,
+                cutout: '80%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: false
+                }
+            }
+        });
+    </script>
+    
+</body>
+</html>
